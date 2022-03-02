@@ -3,7 +3,6 @@ const mealList = document.getElementById("meal");
 const mealContent = document.querySelector(".meal-details-content");
 console.log(mealContent);
 const recipeCloseBtn = document.getElementById('recipe-close-btn');
-
 console.log("hello");
 // event listeners
 searchBtn.addEventListener("click", getMealList);
@@ -36,8 +35,8 @@ function getMealList()
                         <img src = "${meal.strMealThumb}" alt = "food">
                     </div>
                     <div class = "meal-name">
-                        <h3>${meal.strMeal}</h3>
-                        <a href = "#" class = "recipe-btn">Get Recipe</a>
+                        <h3 style = " font-family: 'Libre Baskerville', serif;">${meal.strMeal}</h3>
+                        <a href = "#" class = "recipe-btn"">Get Recipe</a>
                     </div>
                 </div>
             `;
@@ -96,4 +95,44 @@ function mealRecipeModal(meal){
     mealContent.innerHTML = html;
     mealContent.parentElement.classList.add('showRecipe');
 }
+
+
+const button = document.getElementById("map");
+button.addEventListener("click", ()=>{
+    if(navigator.geolocation){
+        button.innerText = "Allow to detect location";
+        navigator.geolocation.getCurrentPosition(onSuccess, onError);
+    }else{
+        button.innerText = "Your browser not support";
+    }
+});
+
+//
+function onSuccess(position){
+    button.innerText = "Detecting your location...";
+    let {latitude, longitude} = position.coords;
+    fetch(`https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=c03e80486a604d41b931a3a3c01118a2`)
+    .then(response => response.json()).then(response =>{
+        console.log(response.json);
+        let allDetails = response.results[0].components;
+        console.table(allDetails);
+        let {county, postcode, country} = allDetails;
+        button.innerText = `${county} ${postcode}, ${country}`;
+    }).catch(()=>{
+        button.innerText = "Something went wrong";
+    });
+}
+function onError(error){
+    if(error.code == 1){
+        button.innerText = "You denied the request";
+    }else if(error.code == 2){
+        button.innerText = "Location is unavailable";
+    }else{
+        button.innerText = "Something went wrong";
+    }
+    button.setAttribute("disabled", "true");
+}
+
+//GOOGLE MAPS
+//API KEY ->AIzaSyBItD7aOEFR_vfCTkFUrszpJMoXLPgXpuc
 
